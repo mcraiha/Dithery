@@ -1,2 +1,2 @@
 # Dithery
- Dither showcase for Blazor
+Dither showcase for Blazor
