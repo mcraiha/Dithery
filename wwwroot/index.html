@@ -10,9 +10,26 @@
 </head>
 
 <body>
-    <app>Loading...</app>
     <noscript>Your browser does not support JavaScript!</noscript>
-    <script src="_framework/blazor.webassembly.js"></script>
-</body>
 
+    <header>
+        <h1>Dithery (dithering for Blazor)</h1>
+    </header>
+
+    <main>
+        <section>
+            <form>
+                <label for="imagetodither">Choose an image to dither:</label>
+                <input type="file" id="imagetodither" name="imagetodither" accept="image/*">
+            </form>
+
+            <canvas id="inputCanvas"></canvas>
+        </section>
+    
+        <app>Loading...</app>
+        <script src="_framework/blazor.webassembly.js"></script>
+
+    </main>
+</body>
+<script type="text/javascript" src="fileToCanvas.js"></script>
 </html>
