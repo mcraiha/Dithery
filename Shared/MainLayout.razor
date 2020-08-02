@@ -1,3 +1,27 @@
 ﻿@inherits LayoutComponentBase
 
-
+<section>
+    <form>
+        <header>
+            <h2>Settings</h2>
+        </header>
+        <label for="dithermethod">Dither method:</label>
+        <select id="dithermethod">
+            <option value="all" selected>All</option>
+            <option value="Atkinson">Atkinson</option>
+            <option value="Burkes">Burkes</option>
+            <option value="Fake">Fake / No dither</option>
+            <option value="FloydSteinberg">FloydSteinberg</option>
+            <option value="JarvisJudiceNinke">JarvisJudiceNinke</option>
+            <option value="Sierra">Sierra</option>
+            <option value="SierraLite">SierraLite</option>
+            <option value="SierraTwoRow">SierraTwoRow</option>
+            <option value="Stucki">Stucki</option>
+        </select>
+        <label for="colorreductionmethod">Color reduction method:</label>
+        <select id="colorreductionmethod">
+            <option value="Web safe" selected>Web safe (216 colors)</option>
+        </select>
+        <button type="button">Dither</button>
+    </form>
+</section>
