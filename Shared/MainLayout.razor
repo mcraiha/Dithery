@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime;
 
 <section>
     <form>
@@ -22,6 +23,40 @@
         <select id="colorreductionmethod">
             <option value="Web safe" selected>Web safe (216 colors)</option>
         </select>
-        <button type="button">Dither</button>
+        <button type="button" @onclick="Dither">Dither</button>
     </form>
 </section>
+
+@code {
+    private static DitheringBase GetDitherer(string method, Func<object[],object[]> colorfunc) => 
+    method switch
+    {
+        "Atkinson" => new AtkinsonDitheringRGBByte(colorfunc),
+        "Burkes" => new BurkesDitheringRGBByte(colorfunc),
+        "Fake" => new FakeDitheringRGBByte(colorfunc),
+        "FloydSteinberg" => new FloydSteinbergDitheringRGBByte(colorfunc),
+        "JarvisJudiceNinke" => new JarvisJudiceNinkeDitheringRGBByte(colorfunc),
+        "Sierra" => new SierraDitheringRGBByte(colorfunc),
+        "SierraLite" => new SierraLiteDitheringRGBByte(colorfunc),
+        "SierraTwoRow" => new SierraTwoRowDitheringRGBByte(colorfunc),
+        "Stucki" => new StuckiDitheringRGBByte(colorfunc),
+        _ => throw new ArgumentException(message: "invalid dithering", paramName: method),
+    };
+
+    private static object[] TrueColorBytesToWebSafeColorBytes(object[] input)
+    {
+        object[] returnArray = new object[input.Length];
+        for (int i = 0; i < returnArray.Length; i++)
+        {
+            returnArray[i] = (byte)(Math.Round((byte)input[i] / 51.0) * 51);
+        }
+        
+        return returnArray;
+    }
+
+    private async Task Dither()
+    {
+        uint[] imageBytes = await JSRuntime.InvokeAsync<uint[]>("readPixelDataFromCanvas", "inputCanvas");
+        Console.WriteLine("Length: " + imageBytes.Length);
+    }
+}
