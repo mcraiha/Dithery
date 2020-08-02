@@ -1,3 +1,23 @@
+window.readPixelDataFromCanvas = (canvasId) => {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return imageData.data;
+}
+
+window.writePixelDataToCanvas = (canvasId, width, height, bufferData) => {
+  const canvas = document.getElementById(canvasId);
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+  const clampedArray = Uint8ClampedArray.from(bufferData);
+
+  const imageData = new ImageData(clampedArray, width, height);
+  ctx.putImageData(imageData, dx, dy);
+}
+
 const imgInput = document.getElementById('imagetodither');
 imgInput.addEventListener('change', function(e) {
   if (e.target.files) {
