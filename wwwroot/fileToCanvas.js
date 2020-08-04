@@ -1,12 +1,29 @@
+window.readWidthFromCanvas = (canvasId) => {
+  const canvas = document.getElementById(canvasId);
+  return canvas.width;
+}
+
+window.readHeightFromCanvas = (canvasId) => {
+  const canvas = document.getElementById(canvasId);
+  return canvas.height;
+}
+
 window.readPixelDataFromCanvas = (canvasId) => {
   const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext('2d');
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  return imageData.data;
+  const returnArray = Array.prototype.slice.call(imageData.data);
+  return returnArray;
 }
 
 window.writePixelDataToCanvas = (canvasId, width, height, bufferData) => {
+
+  console.log(width);
+  console.log(height);
+  console.log(bufferData.length);
+
+
   const canvas = document.getElementById(canvasId);
   canvas.width = width;
   canvas.height = height;
@@ -15,7 +32,7 @@ window.writePixelDataToCanvas = (canvasId, width, height, bufferData) => {
   const clampedArray = Uint8ClampedArray.from(bufferData);
 
   const imageData = new ImageData(clampedArray, width, height);
-  ctx.putImageData(imageData, dx, dy);
+  ctx.putImageData(imageData, 0, 0);
 }
 
 const imgInput = document.getElementById('imagetodither');
