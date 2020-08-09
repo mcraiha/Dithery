@@ -32,7 +32,7 @@
 
 <section>
     <header>
-        <h3>Dithered image</h3>
+        <h3>@dithererName</h3>
     </header>
     <img id="ditheredImageAsPng" src="@ditheredImageAsBase64String" />
 </section>
@@ -103,6 +103,7 @@
 
         DitheringBase ditherer = GetDitherer(ditheringSettings.ditheringMethod, TrueColorBytesToWebSafeColorBytes);
         temp = (TempByteImageFormat)ditherer.DoDithering(temp);
+        dithererName = $"{ditherer.GetMethodName()} dithering";
         
         for (int x = 0; x < width; x++)
         {
@@ -148,4 +149,6 @@
 
     [Parameter]
     public string ditheredImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
+
+    private string dithererName { get; set; } = "Dithered image";
 }
