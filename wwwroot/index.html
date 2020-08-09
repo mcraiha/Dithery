@@ -13,7 +13,7 @@
     <noscript>Your browser does not support JavaScript!</noscript>
 
     <header>
-        <h1>Dithery (dithering for Blazor)</h1>
+        <h1>Dithery (dithering for Blazor with SixLabors.ImageSharp)</h1>
     </header>
 
     <main>
@@ -21,10 +21,12 @@
             <form>
                 <label for="imagetodither">Choose an image to dither:</label>
                 <input type="file" id="imagetodither" name="imagetodither" accept="image/*">
-            </form>
+            </form>     
+        </section>
 
+        <section>
             <canvas id="inputCanvas" style="display:none"></canvas>
-            <img alt="Canvas processed image appears here" id="canvasprocessed" />
+            <img alt="Canvas processed image appears here" id="canvasprocessed" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" />
         </section>
     
         <app>Loading...</app>
