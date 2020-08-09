@@ -17,6 +17,17 @@ window.readPixelDataFromCanvas = (canvasId) => {
   return returnArray;
 }
 
+window.copyImageDataAsPng = (imgId) => {
+  const imgProcessed = document.getElementById(imgId);
+  return imgProcessed.src;
+}
+
+window.copyImageFromImgToAppImg = (imgId) => {
+  const imgProcessed = document.getElementById('canvasprocessed');
+  const imgCopyDestination = document.getElementById(imgId);
+  imgCopyDestination.src = imgProcessed.src;
+}
+
 window.writePixelDataToCanvas = (canvasId, width, height, bufferData) => {
 
   console.log(width);
@@ -52,6 +63,9 @@ imgInput.addEventListener('change', function(e) {
         myCanvas.width = myImage.width;
         myCanvas.height = myImage.height;
         myContext.drawImage(myImage, 0, 0);
+
+        const imgProcessed = document.getElementById('canvasprocessed');
+        imgProcessed.src = myCanvas.toDataURL();
       }
 
     }

@@ -28,7 +28,13 @@
 </section>
 
 <section>
-    <canvas id="dither01"></canvas>
+    <h3>Original image</h3>
+    <br>
+    <img id="originalImageAsPng" src="@defaultImageAsBase64String" />
+    <br>
+    <h3>Dithered image</h3>
+    <br>
+    <img id="ditheredImageAsPng" src="@ditheredImageAsBase64String" />
 </section>
 
 @code {
@@ -66,24 +72,30 @@
 
     private async Task Dither()
     {
-        int width = await JSRuntime.InvokeAsync<int>("readWidthFromCanvas", "inputCanvas");
+        string pngStringData = await JSRuntime.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed");
+        int base64Index = pngStringData.IndexOf("base64,");
+        int base64Length = "base64,".Length;
+        byte[] finalPngData = System.Convert.FromBase64String(pngStringData.Remove(0, base64Index + base64Length));
+        Image<Rgb24> imageOriginal = Image.Load<Rgb24>(finalPngData);
+        
+        using (MemoryStream ms = new MemoryStream())
+        {
+            await imageOriginal.SaveAsPngAsync(ms);
+            defaultImageAsBase64String = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
+        }
 
-        int height = await JSRuntime.InvokeAsync<int>("readHeightFromCanvas", "inputCanvas");
-
-        Console.WriteLine("´Resolution: " + width + " x " + height);
-
-        uint[] imageBytes = await JSRuntime.InvokeAsync<uint[]>("readPixelDataFromCanvas", "inputCanvas");
-        Console.WriteLine("Length: " + imageBytes.Length);
-
-        byte[,,] returnValue = new byte[width, height, 4];
+        Image<Rgb24> imageForDithering = imageOriginal.Clone();
+        
+        int width = imageForDithering.Width;
+        int height = imageForDithering.Height;
+        byte[,,] returnValue = new byte[width, height, 3];
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                returnValue[x, y, 0] = (byte)imageBytes[width * x + y + 0];
-                returnValue[x, y, 1] = (byte)imageBytes[width * x + y + 1];
-                returnValue[x, y, 2] = (byte)imageBytes[width * x + y + 2];
-                returnValue[x, y, 3] = (byte)imageBytes[width * x + y + 3];
+                returnValue[x, y, 0] = imageForDithering[x, y].R;
+                returnValue[x, y, 1] = imageForDithering[x, y].G;
+                returnValue[x, y, 2] = imageForDithering[x, y].B;
             }
         }
 
@@ -92,21 +104,27 @@
         DitheringBase ditherer = GetDitherer("Atkinson", TrueColorBytesToWebSafeColorBytes);
         temp = (TempByteImageFormat)ditherer.DoDithering(temp);
         
-        List<uint> rawBytes = new List<uint>(width * height * 4);
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 object[] pixels = temp.GetPixelChannels(x, y);
-                rawBytes.Add((byte)pixels[0]);
-                rawBytes.Add((byte)pixels[1]);
-                rawBytes.Add((byte)pixels[2]);
-                rawBytes.Add((byte)pixels[3]);
+                imageForDithering[x, y] = new Rgb24((byte)pixels[0], (byte)pixels[1], (byte)pixels[2]);
             }
         }
 
-        Console.WriteLine("Raw Length: " + rawBytes.Count);
-
-        await JSRuntime.InvokeVoidAsync("writePixelDataToCanvas", "dither01", width, height, rawBytes.ToArray());
+        using (MemoryStream ms = new MemoryStream())
+        {
+            await imageForDithering.SaveAsPngAsync(ms);
+            ditheredImageAsBase64String = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
+        }
     }
+
+    private static readonly string oneByOneWhitePixelBase64DataPng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
+    [Parameter]
+    public string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
+
+    [Parameter]
+    public string ditheredImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
 }
