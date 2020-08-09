@@ -2,29 +2,25 @@
 @inject IJSRuntime JSRuntime;
 
 <section>
-    <form>
+    <EditForm Model="ditheringSettings">
         <header>
             <h2>Settings</h2>
         </header>
+        
         <label for="dithermethod">Dither method:</label>
-        <select id="dithermethod">
-            <option value="all" selected>All</option>
-            <option value="Atkinson">Atkinson</option>
-            <option value="Burkes">Burkes</option>
-            <option value="Fake">Fake / No dither</option>
-            <option value="FloydSteinberg">FloydSteinberg</option>
-            <option value="JarvisJudiceNinke">JarvisJudiceNinke</option>
-            <option value="Sierra">Sierra</option>
-            <option value="SierraLite">SierraLite</option>
-            <option value="SierraTwoRow">SierraTwoRow</option>
-            <option value="Stucki">Stucki</option>
-        </select>
+        <InputSelect @bind-Value="ditheringSettings.ditheringMethod">
+        @foreach (var value in Enum.GetValues(typeof(DitheringMethod)))
+        {
+            <option>@value</option>
+        }
+        </InputSelect>
+        
         <label for="colorreductionmethod">Color reduction method:</label>
         <select id="colorreductionmethod">
             <option value="Web safe" selected>Web safe (216 colors)</option>
         </select>
         <button type="button" @onclick="Dither">Dither</button>
-    </form>
+    </EditForm>
 </section>
 
 <section>
@@ -42,19 +38,19 @@
 </section>
 
 @code {
-    private static DitheringBase GetDitherer(string method, Func<object[],object[]> colorfunc) => 
+    private static DitheringBase GetDitherer(DitheringMethod method, Func<object[],object[]> colorfunc) => 
     method switch
     {
-        "Atkinson" => new AtkinsonDitheringRGBByte(colorfunc),
-        "Burkes" => new BurkesDitheringRGBByte(colorfunc),
-        "Fake" => new FakeDitheringRGBByte(colorfunc),
-        "FloydSteinberg" => new FloydSteinbergDitheringRGBByte(colorfunc),
-        "JarvisJudiceNinke" => new JarvisJudiceNinkeDitheringRGBByte(colorfunc),
-        "Sierra" => new SierraDitheringRGBByte(colorfunc),
-        "SierraLite" => new SierraLiteDitheringRGBByte(colorfunc),
-        "SierraTwoRow" => new SierraTwoRowDitheringRGBByte(colorfunc),
-        "Stucki" => new StuckiDitheringRGBByte(colorfunc),
-        _ => throw new ArgumentException(message: "invalid dithering", paramName: method),
+        DitheringMethod.Atkinson => new AtkinsonDitheringRGBByte(colorfunc),
+        DitheringMethod.Burkes => new BurkesDitheringRGBByte(colorfunc),
+        DitheringMethod.Fake => new FakeDitheringRGBByte(colorfunc),
+        DitheringMethod.FloydSteinberg => new FloydSteinbergDitheringRGBByte(colorfunc),
+        DitheringMethod.JarvisJudiceNinke => new JarvisJudiceNinkeDitheringRGBByte(colorfunc),
+        DitheringMethod.Sierra => new SierraDitheringRGBByte(colorfunc),
+        DitheringMethod.SierraLite => new SierraLiteDitheringRGBByte(colorfunc),
+        DitheringMethod.SierraTwoRow => new SierraTwoRowDitheringRGBByte(colorfunc),
+        DitheringMethod.Stucki => new StuckiDitheringRGBByte(colorfunc),
+        _ => throw new ArgumentException(message: "invalid dithering", paramName: method.ToString()),
     };
 
     private static object[] TrueColorBytesToWebSafeColorBytes(object[] input)
@@ -105,7 +101,7 @@
 
         TempByteImageFormat temp = new TempByteImageFormat(returnValue);
 
-        DitheringBase ditherer = GetDitherer("Atkinson", TrueColorBytesToWebSafeColorBytes);
+        DitheringBase ditherer = GetDitherer(ditheringSettings.ditheringMethod, TrueColorBytesToWebSafeColorBytes);
         temp = (TempByteImageFormat)ditherer.DoDithering(temp);
         
         for (int x = 0; x < width; x++)
@@ -125,6 +121,27 @@
     }
 
     private static readonly string oneByOneWhitePixelBase64DataPng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
+    public enum DitheringMethod
+	{
+		All,
+		Atkinson,
+		Burkes,
+		Fake,
+		FloydSteinberg,
+		JarvisJudiceNinke,
+		Sierra,
+		SierraLite,
+		SierraTwoRow,
+		Stucki
+	}
+
+    class DitheringSettings
+    {
+        public DitheringMethod ditheringMethod { get; set; } = DitheringMethod.Atkinson;
+    }
+
+    DitheringSettings ditheringSettings = new DitheringSettings();
 
     [Parameter]
     public string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
