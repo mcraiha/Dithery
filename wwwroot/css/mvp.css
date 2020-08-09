@@ -45,7 +45,7 @@ header,
 main {
     margin: 0 auto;
     max-width: var(--width-content);
-    padding: 2rem 1rem;
+    padding: 0.2rem 0.1rem;
 }
 
 hr {
@@ -59,6 +59,7 @@ section {
     display: flex;
     flex-wrap: wrap;
     justify-content: var(--justify-important);
+    margin: 0.2rem;
 }
 
 section aside {
@@ -317,13 +318,13 @@ form {
     display: block;
     max-width: var(--width-card-wide);
     min-width: var(--width-card);
-    padding: 1.5rem;
+    padding: 0.5rem;
     text-align: var(--justify-normal);
 }
 
 form header {
-    margin: 1.5rem 0;
-    padding: 1.5rem 0;
+    margin: 0.25rem 0;
+    padding: 0.25rem 0;
 }
 
 input,
