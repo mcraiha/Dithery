@@ -72,20 +72,36 @@
 
     private async Task Dither()
     {
-        string pngStringData = await JSRuntime.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed");
+        Stopwatch stopwatch = null;
+        string pngStringData = null;
+        if (JSRuntime is Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime webAssemblyJSRuntime)
+        {
+            stopwatch = Stopwatch.StartNew();
+            pngStringData = webAssemblyJSRuntime.InvokeUnmarshalled<string, string>("copyImageDataAsPng", "canvasprocessed");
+            stopwatch.Stop();
+            Console.WriteLine($"copyImageDataAsPng took {stopwatch.Elapsed}");
+        }
+        //string pngStringData = await JSRuntime.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed");
         int base64Index = pngStringData.IndexOf("base64,");
         int base64Length = "base64,".Length;
+        stopwatch = Stopwatch.StartNew();
         byte[] finalPngData = System.Convert.FromBase64String(pngStringData.Remove(0, base64Index + base64Length));
-        Image<Rgb24> imageOriginal = Image.Load<Rgb24>(finalPngData);
-        
-        using (MemoryStream ms = new MemoryStream())
-        {
-            await imageOriginal.SaveAsPngAsync(ms);
-            defaultImageAsBase64String = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
-        }
+        stopwatch.Stop();
+        Console.WriteLine($"string to byte[] conversion took {stopwatch.Elapsed}");
 
+        stopwatch = Stopwatch.StartNew();
+        Image<Rgb24> imageOriginal = Image.Load<Rgb24>(finalPngData);
+        stopwatch.Stop();
+        Console.WriteLine($"loading image from Png bytes took {stopwatch.Elapsed}");
+
+        defaultImageAsBase64String = pngStringData;
+
+        stopwatch = Stopwatch.StartNew();
         Image<Rgb24> imageForDithering = imageOriginal.Clone();
+        stopwatch.Stop();
+        Console.WriteLine($"Cloning an image took {stopwatch.Elapsed}");
         
+        stopwatch = Stopwatch.StartNew();
         int width = imageForDithering.Width;
         int height = imageForDithering.Height;
         byte[,,] returnValue = new byte[width, height, 3];
@@ -98,13 +114,23 @@
                 returnValue[x, y, 2] = imageForDithering[x, y].B;
             }
         }
+        stopwatch.Stop();
+        Console.WriteLine($"Creating a copy part I for editing took {stopwatch.Elapsed}");
 
+        stopwatch = Stopwatch.StartNew();
         TempByteImageFormat temp = new TempByteImageFormat(returnValue);
+        stopwatch.Stop();
+        Console.WriteLine($"Creating a copy part II for editing took {stopwatch.Elapsed}");
 
+        stopwatch = Stopwatch.StartNew();
         DitheringBase ditherer = GetDitherer(ditheringSettings.ditheringMethod, TrueColorBytesToWebSafeColorBytes);
         temp = (TempByteImageFormat)ditherer.DoDithering(temp);
+        stopwatch.Stop();
+        Console.WriteLine($"Dithering took {stopwatch.Elapsed}");
+
         dithererName = $"{ditherer.GetMethodName()} dithering";
         
+        stopwatch = Stopwatch.StartNew();
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -113,11 +139,20 @@
                 imageForDithering[x, y] = new Rgb24((byte)pixels[0], (byte)pixels[1], (byte)pixels[2]);
             }
         }
+        stopwatch.Stop();
+        Console.WriteLine($"Copying dithered took {stopwatch.Elapsed}");
 
         using (MemoryStream ms = new MemoryStream())
         {
+            stopwatch = Stopwatch.StartNew();
             await imageForDithering.SaveAsPngAsync(ms);
+            stopwatch.Stop();
+            Console.WriteLine($"writing image to Png memorystream took {stopwatch.Elapsed}");
+
+            stopwatch = Stopwatch.StartNew();
             ditheredImageAsBase64String = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
+            stopwatch.Stop();
+            Console.WriteLine($"writing string from Png memorystream took {stopwatch.Elapsed}");
         }
     }
 

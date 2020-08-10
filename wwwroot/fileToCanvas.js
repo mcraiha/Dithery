@@ -1,7 +1,7 @@
 
 window.copyImageDataAsPng = (imgId) => {
-  const imgProcessed = document.getElementById(imgId);
-  return imgProcessed.src;
+  const imgProcessed = document.getElementById(BINDING.conv_string(imgId));
+  return BINDING.js_to_mono_obj(imgProcessed.src);
 }
 
 const imgInput = document.getElementById('imagetodither');
