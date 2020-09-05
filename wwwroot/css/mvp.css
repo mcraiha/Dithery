@@ -431,3 +431,17 @@ blockquote footer {
     line-height: var(--line-height);
     padding: 1.5rem 0;
 }
+
+#loading {
+    -webkit-animation: rotation 3s infinite ease-in-out;
+    font-size: xx-large;
+}
+
+@-webkit-keyframes rotation {
+    from {
+            -webkit-transform: rotate(0deg);
+    }
+    to {
+            -webkit-transform: rotate(359.9deg);
+    }
+}

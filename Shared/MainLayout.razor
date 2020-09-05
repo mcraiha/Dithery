@@ -22,23 +22,40 @@
             <option>@value</option>
         }
         </InputSelect>
-        <button type="button" @onclick="Dither">Dither</button>
+        @if (processing)
+        {
+            
+        }
+        else
+        {
+            <button type="button" @onclick="Dither">Dither</button>
+        }
     </EditForm>
 </section>
 
-<section>
-    <header>
-        <h3>Original image</h3>
-    </header>
-    <img id="originalImageAsPng" src="@defaultImageAsBase64String" />
-</section>
+@if (processing)
+{
+    <section>
+        <p id="loading">⏳</p>
+    </section>
+}
+else
+{
+    <section>
+        <header>
+            <h3>Original image</h3>
+        </header>
+        <img id="originalImageAsPng" src="@defaultImageAsBase64String" />
+    </section>
 
-<section>
-    <header>
-        <h3>@dithererName</h3>
-    </header>
-    <img id="ditheredImageAsPng" src="@ditheredImageAsBase64String" />
-</section>
+    <section>
+        <header>
+            <h3>@dithererName</h3>
+        </header>
+        <img id="ditheredImageAsPng" src="@ditheredImageAsBase64String" />
+    </section>
+}
+
 
 @code {
     private static DitheringBase<byte> GetDitherer(DitheringMethod method, DitheringBase<byte>.ColorFunction colorfunc) => 
@@ -135,6 +152,9 @@
 
     private async Task Dither()
     {
+        processing = true;
+        await Task.Delay(TimeSpan.FromSeconds(0.01));
+
         Stopwatch stopwatch = null;
         string pngStringData = null;
         if (JSRuntime is Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime webAssemblyJSRuntime)
@@ -218,6 +238,8 @@
             stopwatch.Stop();
             Console.WriteLine($"writing string from Png memorystream took {stopwatch.Elapsed}");
         }
+
+        processing = false;
     }
 
     private static readonly string oneByOneWhitePixelBase64DataPng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
@@ -257,6 +279,8 @@
     DitheringSettings ditheringSettings = new DitheringSettings();
 
     ColorReductionSettings colorReductionSettings = new ColorReductionSettings();
+
+    bool processing = false;
 
     [Parameter]
     public string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
