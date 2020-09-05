@@ -22,6 +22,9 @@ imgInput.addEventListener('change', function(e) {
         myCanvas.height = myImage.height;
         myContext.drawImage(myImage, 0, 0);
 
+        const imageresolutionLabel = document.getElementById('imageresolution');
+        imageresolutionLabel.innerText = `Resolution: ${myImage.width} x ${myImage.height}`;
+
         const imgProcessed = document.getElementById('canvasprocessed');
         imgProcessed.src = myCanvas.toDataURL();
       }
