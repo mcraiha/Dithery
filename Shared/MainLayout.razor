@@ -61,6 +61,8 @@
         }
     }
 
+    private static readonly PngEncoder pngEncoder = new PngEncoder() { CompressionLevel = PngCompressionLevel.BestSpeed };
+
     private async Task Dither()
     {
         Stopwatch stopwatch = null;
@@ -136,7 +138,7 @@
         using (MemoryStream ms = new MemoryStream())
         {
             stopwatch = Stopwatch.StartNew();
-            await imageForDithering.SaveAsPngAsync(ms);
+            await imageForDithering.SaveAsPngAsync(ms, pngEncoder);
             stopwatch.Stop();
             Console.WriteLine($"writing image to Png memorystream took {stopwatch.Elapsed}");
 
