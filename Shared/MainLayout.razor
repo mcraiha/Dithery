@@ -38,7 +38,7 @@
 </section>
 
 @code {
-    private static DitheringBase GetDitherer(DitheringMethod method, Func<object[],object[]> colorfunc) => 
+    private static DitheringBase<byte> GetDitherer(DitheringMethod method, DitheringBase<byte>.ColorFunction colorfunc) => 
     method switch
     {
         DitheringMethod.Atkinson => new AtkinsonDitheringRGBByte(colorfunc),
@@ -53,21 +53,12 @@
         _ => throw new ArgumentException(message: "invalid dithering", paramName: method.ToString()),
     };
 
-    private static object[] TrueColorBytesToWebSafeColorBytes(object[] input)
+    private static void TrueColorBytesToWebSafeColorBytes(in byte[] input, ref byte[] output)
     {
-        int arrayLimit = 3;
-        object[] returnArray = new object[input.Length];
-        for (int i = 0; i < arrayLimit; i++)
+        for (int i = 0; i < input.Length; i++)
         {
-            returnArray[i] = (byte)(Math.Round((byte)input[i] / 51.0) * 51);
+            output[i] = (byte)(Math.Round(input[i] / 51.0) * 51);
         }
-
-        for (int i = arrayLimit; i < input.Length; i++)
-        {
-            returnArray[i] = (byte)input[i];
-        }
-        
-        return returnArray;
     }
 
     private async Task Dither()
@@ -123,7 +114,7 @@
         Console.WriteLine($"Creating a copy part II for editing took {stopwatch.Elapsed}");
 
         stopwatch = Stopwatch.StartNew();
-        DitheringBase ditherer = GetDitherer(ditheringSettings.ditheringMethod, TrueColorBytesToWebSafeColorBytes);
+        DitheringBase<byte> ditherer = GetDitherer(ditheringSettings.ditheringMethod, TrueColorBytesToWebSafeColorBytes);
         temp = (TempByteImageFormat)ditherer.DoDithering(temp);
         stopwatch.Stop();
         Console.WriteLine($"Dithering took {stopwatch.Elapsed}");
@@ -135,8 +126,8 @@
         {
             for (int y = 0; y < height; y++)
             {
-                object[] pixels = temp.GetPixelChannels(x, y);
-                imageForDithering[x, y] = new Rgb24((byte)pixels[0], (byte)pixels[1], (byte)pixels[2]);
+                byte[] pixels = temp.GetPixelChannels(x, y);
+                imageForDithering[x, y] = new Rgb24(pixels[0], pixels[1], pixels[2]);
             }
         }
         stopwatch.Stop();
