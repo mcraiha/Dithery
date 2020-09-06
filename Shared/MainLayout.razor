@@ -304,11 +304,9 @@ else
 
     private static bool imageIsLoaded = false;
 
-    [Parameter]
-    public string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
+    private string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
 
-    [Parameter]
-    public string ditheredImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
+    private string ditheredImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
 
     private string dithererName { get; set; } = "Dithered image";
 }
