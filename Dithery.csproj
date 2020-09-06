@@ -14,4 +14,8 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
+  </PropertyGroup>
+
 </Project>
