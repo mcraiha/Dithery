@@ -27,6 +27,7 @@ imgInput.addEventListener('change', function(e) {
 
         const imgProcessed = document.getElementById('canvasprocessed');
         imgProcessed.src = myCanvas.toDataURL();
+        DotNet.invokeMethodAsync('Dithery', 'ImageLoaded');
       }
 
     }

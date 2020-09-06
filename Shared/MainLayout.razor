@@ -6,29 +6,35 @@
         <header>
             <h2>Settings</h2>
         </header>
-        
-        <label for="dithermethod">Dither method:</label>
-        <InputSelect id="dithermethod" @bind-Value="ditheringSettings.ditheringMethod">
-        @foreach (var value in Enum.GetValues(typeof(DitheringMethod)))
+        @if (imageIsLoaded)
         {
-            <option>@value</option>
-        }
-        </InputSelect>
-        
-        <label for="colorreductionmethod">Color reduction method:</label>
-        <InputSelect id="colorreductionmethod" @bind-Value="colorReductionSettings.colorReductionMethod">
-        @foreach (var value in Enum.GetValues(typeof(ColorReductionMethod)))
-        {
-            <option>@value</option>
-        }
-        </InputSelect>
-        @if (processing)
-        {
+            <label for="dithermethod">Dither method:</label>
+            <InputSelect id="dithermethod" @bind-Value="ditheringSettings.ditheringMethod">
+            @foreach (var value in Enum.GetValues(typeof(DitheringMethod)))
+            {
+                <option>@value</option>
+            }
+            </InputSelect>
             
+            <label for="colorreductionmethod">Color reduction method:</label>
+            <InputSelect id="colorreductionmethod" @bind-Value="colorReductionSettings.colorReductionMethod">
+            @foreach (var value in Enum.GetValues(typeof(ColorReductionMethod)))
+            {
+                <option>@value</option>
+            }
+            </InputSelect>
+            @if (processing)
+            {
+                
+            }
+            else
+            {
+                <button type="button" @onclick="Dither">Dither</button>
+            }
         }
         else
         {
-            <button type="button" @onclick="Dither">Dither</button>
+            <p>Please, load an image with <b>Choose File</b> button</p>
         }
     </EditForm>
 </section>
@@ -58,6 +64,19 @@ else
 
 
 @code {
+
+    [JSInvokable]
+    public static void ImageLoaded()
+    {
+        imageIsLoaded = true;
+        singleton.StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        singleton = this;
+    }
+
     private static DitheringBase<byte> GetDitherer(DitheringMethod method, DitheringBase<byte>.ColorFunction colorfunc) => 
     method switch
     {
@@ -275,12 +294,15 @@ else
         public ColorReductionMethod colorReductionMethod { get; set; } = ColorReductionMethod.WebSafe;
     }
 
+    private static Dithery.Shared.MainLayout singleton = null;
 
     DitheringSettings ditheringSettings = new DitheringSettings();
 
     ColorReductionSettings colorReductionSettings = new ColorReductionSettings();
 
     bool processing = false;
+
+    private static bool imageIsLoaded = false;
 
     [Parameter]
     public string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
