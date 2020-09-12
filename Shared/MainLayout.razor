@@ -206,28 +206,30 @@ else
         stopwatch = Stopwatch.StartNew();
         int width = imageForDithering.Width;
         int height = imageForDithering.Height;
-        byte[,,] returnValue = new byte[width, height, 3];
+        int channelsPerPixel = 3;
+        byte[] returnValue = new byte[width * height * channelsPerPixel];
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
                 Rgb24 pixel = imageForDithering[x, y];
-                returnValue[x, y, 0] = pixel.R;
-                returnValue[x, y, 1] = pixel.G;
-                returnValue[x, y, 2] = pixel.B;
+                int arrayIndex = y * width * channelsPerPixel + x * channelsPerPixel;
+                returnValue[arrayIndex + 0] = pixel.R;
+                returnValue[arrayIndex + 1] = pixel.G;
+                returnValue[arrayIndex + 2] = pixel.B;
             }
         }
         stopwatch.Stop();
         Console.WriteLine($"Creating a copy part I for editing took {stopwatch.Elapsed}");
 
         stopwatch = Stopwatch.StartNew();
-        TempByteImageFormat temp = new TempByteImageFormat(returnValue);
+        TempByteImageFormat temp = new TempByteImageFormat(returnValue, width, height, channelsPerPixel);
         stopwatch.Stop();
         Console.WriteLine($"Creating a copy part II for editing took {stopwatch.Elapsed}");
 
         stopwatch = Stopwatch.StartNew();
         DitheringBase<byte> ditherer = GetDitherer(ditheringSettings.ditheringMethod, GetColorReductionMethod(colorReductionSettings.colorReductionMethod));
-        temp = (TempByteImageFormat)ditherer.DoDithering(temp);
+        ditherer.DoDithering(temp);
         stopwatch.Stop();
         Console.WriteLine($"Dithering took {stopwatch.Elapsed}");
 
