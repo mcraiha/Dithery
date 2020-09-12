@@ -169,6 +169,8 @@ else
 
     private static readonly PngEncoder pngEncoder = new PngEncoder() { CompressionLevel = PngCompressionLevel.BestSpeed };
 
+    private static readonly int byteAmountCutPoint = 256 * 1024;
+
     private async Task Dither()
     {
         processing = true;
@@ -179,7 +181,26 @@ else
         if (JSRuntime is Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime webAssemblyJSRuntime)
         {
             stopwatch = Stopwatch.StartNew();
-            pngStringData = webAssemblyJSRuntime.InvokeUnmarshalled<string, string>("copyImageDataAsPng", "canvasprocessed");
+            int length = await JSRuntime.InvokeAsync<int>("getImageDataLength", "canvasprocessed");
+            if (length > byteAmountCutPoint)
+            {
+                StringBuilder sb = new StringBuilder(length);
+                int index = 0;
+                while (length > 0)
+                {
+                    int howMuchToRead = length > byteAmountCutPoint ? byteAmountCutPoint : length;
+                    int end = index + howMuchToRead;
+                    sb.Append(webAssemblyJSRuntime.InvokeUnmarshalled<string, string, string, string>("copyImageDataAsPng", "canvasprocessed", index.ToString(), end.ToString()));
+                    length -= howMuchToRead;
+                    index += howMuchToRead;
+                }
+                pngStringData = sb.ToString();
+            }
+            else
+            {
+                pngStringData = webAssemblyJSRuntime.InvokeUnmarshalled<string, string, string, string>("copyImageDataAsPng", "canvasprocessed", 0.ToString(), length.ToString());
+            }
+            
             stopwatch.Stop();
             Console.WriteLine($"copyImageDataAsPng took {stopwatch.Elapsed}");
         }

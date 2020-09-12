@@ -1,7 +1,14 @@
 
-window.copyImageDataAsPng = (imgId) => {
+window.copyImageDataAsPng = (imgId, start, end) => {
   const imgProcessed = document.getElementById(BINDING.conv_string(imgId));
-  return BINDING.js_to_mono_obj(imgProcessed.src);
+  const startOffset = parseInt(BINDING.conv_string(start), 10);
+  const endOffset = parseInt(BINDING.conv_string(end), 10);
+  return BINDING.js_to_mono_obj(imgProcessed.src.substring(startOffset, endOffset));
+}
+
+window.getImageDataLength = (imgId) => {
+  const imgProcessed = document.getElementById(imgId);
+  return imgProcessed.src.length;
 }
 
 const imgInput = document.getElementById('imagetodither');
