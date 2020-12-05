@@ -24,4 +24,4 @@ And then you can open http://localhost:5000 in your browser
 dotnet publish -c Release
 ```
   
-and content should be in **bin\Release\netstandard2.1\publish\wwwroot** folder.
+and content should be in **bin\Release\net5.0\publish\wwwroot** folder.
