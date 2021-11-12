@@ -23,5 +23,6 @@ And then you can open http://localhost:5000 in your browser
 ```
 dotnet publish -c Release
 ```
+(you have to have wasm-tools installed, you can install it with following command `dotnet workload install wasm-tools` )
   
-and content should be in **bin\Release\net5.0\publish\wwwroot** folder.
+and content should be in **bin\Release\net6.0\publish\wwwroot** folder.
