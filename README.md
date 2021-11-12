@@ -6,11 +6,11 @@ https://mcraiha.github.io/Dithery/
 
 ## Requirements (use)
 
-You have to have newish [internet browser](https://docs.microsoft.com/en-us/aspnet/core/blazor/supported-platforms?view=aspnetcore-5.0)
+You have to have newish [internet browser](https://docs.microsoft.com/en-us/aspnet/core/blazor/supported-platforms?view=aspnetcore-6.0)
 
 ## Requirements (develop)
 
-.NET 5 or newer
+.NET 6 or newer
 
 ## How to run / develop
 ```
