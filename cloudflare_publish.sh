@@ -5,3 +5,4 @@ chmod +x dotnet-install.sh
 ./dotnet6/dotnet --version
 ./dotnet6/dotnet workload install wasm-tools
 ./dotnet6/dotnet publish -c Release -o output
+rm output/wwwroot/_framework/dotnet.wasm
