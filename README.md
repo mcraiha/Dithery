@@ -2,7 +2,7 @@
 Dither showcase for Blazor. Uses [CSharp-Dithering](https://github.com/mcraiha/CSharp-Dithering) and [ImageSharp](https://github.com/SixLabors/ImageSharp)
 
 ## Web link
-https://mcraiha.github.io/Dithery/
+[https://dithery.raiha.rocks](https://dithery.raiha.rocks)
 
 ## Requirements (use)
 
