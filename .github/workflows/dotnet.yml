@@ -4,7 +4,7 @@ name: .NET publish to CF
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
