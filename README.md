@@ -28,4 +28,4 @@ dotnet publish -c Release
 ```
 (you have to have wasm-tools installed, you can install it with following command `dotnet workload install wasm-tools` )
   
-and content should be in **bin\Release\net7.0\publish\wwwroot** folder.
+and content should be in **bin\Release\net8.0\publish\wwwroot** folder.
