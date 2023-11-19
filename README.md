@@ -8,11 +8,11 @@ Dither showcase for Blazor. Uses [CSharp-Dithering](https://github.com/mcraiha/C
 
 ## Requirements (use)
 
-You have to have newish [internet browser](https://docs.microsoft.com/en-us/aspnet/core/blazor/supported-platforms?view=aspnetcore-7.0)
+You have to have newish [internet browser](https://docs.microsoft.com/en-us/aspnet/core/blazor/supported-platforms?view=aspnetcore-8.0)
 
 ## Requirements (develop)
 
-.NET 7 or newer
+.NET 8 or newer
 
 ## How to run / develop
 ```
