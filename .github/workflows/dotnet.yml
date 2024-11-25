@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Install wasm-tools
       run: dotnet workload install wasm-tools
     - name: Add build info
@@ -30,12 +30,12 @@ jobs:
     - name: Publish release
       run: dotnet publish -c Release
     - name: Remove .wasm file
-      run: rm bin/Release/net8.0/publish/wwwroot/_framework/*.wasm
+      run: rm bin/Release/net9.0/publish/wwwroot/_framework/*.wasm
     - name: Remove .gz file
-      run: rm bin/Release/net8.0/publish/wwwroot/_framework/*.gz
+      run: rm bin/Release/net9.0/publish/wwwroot/_framework/*.gz
     - name: Upload to pages
       uses: cloudflare/wrangler-action@v3
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        command: pages publish bin/Release/net8.0/publish/wwwroot --project-name=dithery
+        command: pages publish bin/Release/net9.0/publish/wwwroot --project-name=dithery
     

@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-@inject IJSRuntime JSRuntime;
+@inject IJSRuntime JS
 
 <section>
     <EditForm Model="ditheringSettings">
@@ -230,10 +230,10 @@ else
 
         Stopwatch stopwatch = null;
         string pngStringData = null;
-        if (JSRuntime is Microsoft.JSInterop.WebAssembly.WebAssemblyJSRuntime webAssemblyJSRuntime)
+        if (true)
         {
             stopwatch = Stopwatch.StartNew();
-            int length = await JSRuntime.InvokeAsync<int>("getImageDataLength", "canvasprocessed");
+            int length = await JS.InvokeAsync<int>("getImageDataLength", "canvasprocessed");
             if (length > byteAmountCutPoint)
             {
                 StringBuilder sb = new StringBuilder(length);
@@ -242,7 +242,7 @@ else
                 {
                     int howMuchToRead = length > byteAmountCutPoint ? byteAmountCutPoint : length;
                     int end = index + howMuchToRead;
-                    sb.Append(webAssemblyJSRuntime.InvokeUnmarshalled<string, string, string, string>("copyImageDataAsPng", "canvasprocessed", index.ToString(), end.ToString()));
+                    sb.Append(await JS.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed", index.ToString(), end.ToString()));
                     length -= howMuchToRead;
                     index += howMuchToRead;
                 }
@@ -250,13 +250,13 @@ else
             }
             else
             {
-                pngStringData = webAssemblyJSRuntime.InvokeUnmarshalled<string, string, string, string>("copyImageDataAsPng", "canvasprocessed", 0.ToString(), length.ToString());
+                pngStringData = await JS.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed", 0.ToString(), length.ToString());
             }
             
             stopwatch.Stop();
             Console.WriteLine($"copyImageDataAsPng took {stopwatch.Elapsed}");
         }
-        //string pngStringData = await JSRuntime.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed");
+        
         int base64Index = pngStringData.IndexOf("base64,");
         int base64Length = "base64,".Length;
         stopwatch = Stopwatch.StartNew();
