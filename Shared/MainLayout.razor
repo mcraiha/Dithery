@@ -100,6 +100,7 @@ else
         ColorReductionMethod.EGA => TrueColorBytesToEGABytes,
         ColorReductionMethod.C64 => TrueColorBytesToC64Bytes,
         ColorReductionMethod.PICO8 => TrueColorBytesToPICO8Bytes,
+        ColorReductionMethod.The12BitRainbow => TrueColorBytesToRainbow12Bytes,
         _ => throw new ArgumentException(message: "invalid color reduction", paramName: method.ToString()),
     };
 
@@ -192,6 +193,27 @@ else
     private static void TrueColorBytesToPICO8Bytes(in byte[] input, ref byte[] output)
     {
         output = FindNearestColor(input, pico8Colors);
+    }
+
+    private static readonly List<byte[]> rainbow12bitColors = new List<byte[]>() 
+    {
+        new byte[] { 136, 17, 119 }, 
+        new byte[] { 170, 51, 85 }, 
+        new byte[] { 204, 102, 102 }, 
+        new byte[] { 238, 153, 68 }, 
+        new byte[] { 238, 221, 0 }, 
+        new byte[] { 153, 221, 85}, 
+        new byte[] { 68, 221, 136 }, 
+        new byte[] { 34, 204, 187},
+        new byte[] { 0, 187, 204 }, 
+        new byte[] { 0, 153, 204 }, 
+        new byte[] { 51, 102, 187 }, 
+        new byte[] { 102, 51, 153 }, 
+    };
+
+    private static void TrueColorBytesToRainbow12Bytes(in byte[] input, ref byte[] output)
+    {
+        output = FindNearestColor(input, rainbow12bitColors);
     }
 
     private static byte[] FindNearestColor(byte[] actualColor, List<byte[]> allowedColors)
@@ -352,6 +374,7 @@ else
         EGA, // True color to EGA colors (64 different colors)
         C64, // True color to C64 colors (16 different colors)
         PICO8, // True color to PICO-8 (16 different colors)
+        The12BitRainbow, // True color to 12-bit rainbow (12 different colors)
     }
 
     class DitheringSettings
