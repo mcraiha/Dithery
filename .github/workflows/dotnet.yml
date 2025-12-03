@@ -30,12 +30,13 @@ jobs:
     - name: Publish release
       run: dotnet publish -c Release
     - name: Remove .wasm file
-      run: rm bin/Release/net9.0/publish/wwwroot/_framework/*.wasm
+      run: rm bin/Release/net10.0/publish/wwwroot/_framework/*.wasm
     - name: Remove .gz file
-      run: rm bin/Release/net9.0/publish/wwwroot/_framework/*.gz
+      run: rm bin/Release/net10.0/publish/wwwroot/_framework/*.gz
     - name: Upload to pages
       uses: cloudflare/wrangler-action@v3
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        command: pages publish bin/Release/net9.0/publish/wwwroot --project-name=dithery
+        accountId: ${{ secrets.CF_ACCOUNT_ID }}
+        command: pages deploy bin/Release/net10.0/publish/wwwroot --project-name=dithery
     
