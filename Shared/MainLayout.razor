@@ -77,7 +77,7 @@ else
         singleton = this;
     }
 
-    private static DitheringBase<byte> GetDitherer(DitheringMethod method, DitheringBase<byte>.ColorFunction colorfunc) => 
+    private static IDitherCommon<byte> GetDitherer(DitheringMethod method, DitheringErrorPushBase<byte>.ColorFunction colorfunc) => 
     method switch
     {
         DitheringMethod.Atkinson => new AtkinsonDitheringRGB<byte>(colorfunc),
@@ -92,7 +92,7 @@ else
         _ => throw new ArgumentException(message: "invalid dithering", paramName: method.ToString()),
     };
 
-    private static DitheringBase<byte>.ColorFunction GetColorReductionMethod(ColorReductionMethod method) =>
+    private static DitheringErrorPushBase<byte>.ColorFunction GetColorReductionMethod(ColorReductionMethod method) =>
     method switch
     {
         ColorReductionMethod.WebSafe => TrueColorBytesToWebSafeColorBytes,
@@ -323,7 +323,7 @@ else
         Console.WriteLine($"Creating a copy part II for editing took {stopwatch.Elapsed}");
 
         stopwatch = Stopwatch.StartNew();
-        DitheringBase<byte> ditherer = GetDitherer(ditheringSettings.ditheringMethod, GetColorReductionMethod(colorReductionSettings.colorReductionMethod));
+        IDitherCommon<byte> ditherer = GetDitherer(ditheringSettings.ditheringMethod, GetColorReductionMethod(colorReductionSettings.colorReductionMethod));
         ditherer.DoDithering(temp);
         stopwatch.Stop();
         Console.WriteLine($"Dithering took {stopwatch.Elapsed}");
