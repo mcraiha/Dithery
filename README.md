@@ -1,6 +1,6 @@
 # Dithery
 
-Dither showcase for Blazor. Uses [CSharp-Dithering](https://github.com/mcraiha/CSharp-Dithering) and [ImageSharp](https://github.com/SixLabors/ImageSharp)
+Dither showcase for Blazor. Uses [CSharp-Dithering](https://github.com/mcraiha/CSharp-Dithering)
 
 ## Web link
 

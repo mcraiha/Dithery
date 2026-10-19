@@ -1,12 +1,51 @@
 
-window.copyImageDataAsPng = (imgId, start, end) => {
-  const imgProcessed = document.getElementById(imgId);
-  return imgProcessed.src.substring(start, end);
+window.copyImageDataAsBytes = (canvasId) => {
+  const canvas = document.getElementById(canvasId);
+  const myContext = canvas.getContext("2d");
+  const imageData = myContext.getImageData(0, 0, canvas.width, canvas.height);
+  return new Uint8Array(imageData.data);
 }
 
-window.getImageDataLength = (imgId) => {
-  const imgProcessed = document.getElementById(imgId);
-  return imgProcessed.src.length;
+window.getImageWidth = (canvasId) => {
+  const canvas = document.getElementById(canvasId);
+  return canvas.width;
+}
+
+window.getImageHeight = (canvasId) => {
+  const canvas = document.getElementById(canvasId);
+  return canvas.height;
+}
+
+window.writeRGBToCanvas = (canvasId, width, height, rgbBytes) => {
+  
+  // Change to RGBA bytes
+  const rgbaBytes = new Uint8ClampedArray(rgbBytes.length / 3 * 4);
+  let inputIndex = 0;
+  let outputIndex = 0;
+  while (inputIndex < rgbBytes.length)
+  {
+    if (inputIndex % 3 == 2)
+    {
+      rgbaBytes[outputIndex] = rgbBytes[inputIndex];
+      inputIndex++;
+      outputIndex++;
+      rgbaBytes[outputIndex] = 255;
+      outputIndex++;
+    }
+    else
+    {
+      rgbaBytes[outputIndex] = rgbBytes[inputIndex];
+      inputIndex++;
+      outputIndex++;
+    }
+  }
+
+  const canvas = document.getElementById(canvasId);
+  const context = canvas.getContext("2d")
+  canvas.width = width;
+  canvas.height = height;
+  context.putImageData(new ImageData(rgbaBytes, width, height), 0, 0);
+  canvas.style.display = "block";
 }
 
 const imgInput = document.getElementById('imagetodither');
@@ -26,12 +65,11 @@ imgInput.addEventListener('change', function(e) {
         myCanvas.width = myImage.width;
         myCanvas.height = myImage.height;
         myContext.drawImage(myImage, 0, 0);
+        myCanvas.style.display = "block";
 
         const imageresolutionLabel = document.getElementById('imageresolution');
         imageresolutionLabel.innerText = `Resolution: ${myImage.width} x ${myImage.height}`;
 
-        const imgProcessed = document.getElementById('canvasprocessed');
-        imgProcessed.src = myCanvas.toDataURL();
         DotNet.invokeMethodAsync('Dithery', 'ImageLoaded');
       }
 

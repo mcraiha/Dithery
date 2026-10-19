@@ -47,18 +47,12 @@
 }
 else
 {
-    <section>
-        <header>
-            <h3>Original image</h3>
-        </header>
-        <img id="originalImageAsPng" src="@defaultImageAsBase64String" />
-    </section>
 
     <section>
         <header>
             <h3>@dithererName</h3>
         </header>
-        <img id="ditheredImageAsPng" src="@ditheredImageAsBase64String" />
+        <canvas id="outputCanvas" style="display:none"></canvas>
     </section>
 }
 
@@ -241,9 +235,7 @@ else
         return (uint)((redDifference * redDifference) + (greenDifference * greenDifference) + (blueDifference * blueDifference));
     }
 
-    private static readonly PngEncoder pngEncoder = new PngEncoder() { CompressionLevel = PngCompressionLevel.BestSpeed };
-
-    private static readonly int byteAmountCutPoint = 256 * 1024;
+    private static string inputCanvas = "inputCanvas";
 
     private async Task Dither()
     {
@@ -251,76 +243,39 @@ else
         await Task.Delay(TimeSpan.FromSeconds(0.01));
 
         Stopwatch stopwatch = null;
-        string pngStringData = null;
-        if (true)
+        stopwatch = Stopwatch.StartNew();
+        int width = await JS.InvokeAsync<int>("getImageWidth", inputCanvas);
+        int height = await JS.InvokeAsync<int>("getImageHeight", inputCanvas);
+        byte[] imageBytes = await JS.InvokeAsync<byte[]>("copyImageDataAsBytes", inputCanvas);
+        stopwatch.Stop();
+        Console.WriteLine($"Resolution: {width} x {height}");
+        Console.WriteLine($"copyImageDataAsBytes from canvas took {stopwatch.Elapsed}");
+
+        stopwatch = Stopwatch.StartNew();
+        byte[] onlyRGB = new byte[imageBytes.Length / 4 * 3];
+        int inputIndex = 0;
+        int outputIndex = 0;
+        while (inputIndex < imageBytes.Length)
         {
-            stopwatch = Stopwatch.StartNew();
-            int length = await JS.InvokeAsync<int>("getImageDataLength", "canvasprocessed");
-            if (length > byteAmountCutPoint)
+            if (inputIndex % 4 == 3)
             {
-                StringBuilder sb = new StringBuilder(length);
-                int index = 0;
-                while (length > 0)
-                {
-                    int howMuchToRead = length > byteAmountCutPoint ? byteAmountCutPoint : length;
-                    int end = index + howMuchToRead;
-                    sb.Append(await JS.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed", index.ToString(), end.ToString()));
-                    length -= howMuchToRead;
-                    index += howMuchToRead;
-                }
-                pngStringData = sb.ToString();
+                inputIndex++;
             }
             else
             {
-                pngStringData = await JS.InvokeAsync<string>("copyImageDataAsPng", "canvasprocessed", 0.ToString(), length.ToString());
-            }
-            
-            stopwatch.Stop();
-            Console.WriteLine($"copyImageDataAsPng took {stopwatch.Elapsed}");
-        }
-        
-        int base64Index = pngStringData.IndexOf("base64,");
-        int base64Length = "base64,".Length;
-        stopwatch = Stopwatch.StartNew();
-        byte[] finalPngData = System.Convert.FromBase64String(pngStringData.Remove(0, base64Index + base64Length));
-        stopwatch.Stop();
-        Console.WriteLine($"string to byte[] conversion took {stopwatch.Elapsed}");
-
-        stopwatch = Stopwatch.StartNew();
-        Image<Rgb24> imageOriginal = Image.Load<Rgb24>(finalPngData);
-        stopwatch.Stop();
-        Console.WriteLine($"loading image from Png bytes took {stopwatch.Elapsed}");
-
-        defaultImageAsBase64String = pngStringData;
-
-        stopwatch = Stopwatch.StartNew();
-        Image<Rgb24> imageForDithering = imageOriginal.Clone();
-        stopwatch.Stop();
-        Console.WriteLine($"Cloning an image took {stopwatch.Elapsed}");
-        
-        stopwatch = Stopwatch.StartNew();
-        int width = imageForDithering.Width;
-        int height = imageForDithering.Height;
-        int channelsPerPixel = 3;
-        byte[] returnValue = new byte[width * height * channelsPerPixel];
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                Rgb24 pixel = imageForDithering[x, y];
-                int arrayIndex = y * width * channelsPerPixel + x * channelsPerPixel;
-                returnValue[arrayIndex + 0] = pixel.R;
-                returnValue[arrayIndex + 1] = pixel.G;
-                returnValue[arrayIndex + 2] = pixel.B;
+                onlyRGB[outputIndex] = imageBytes[inputIndex];
+                inputIndex++;
+                outputIndex++;
             }
         }
+
         stopwatch.Stop();
-        Console.WriteLine($"Creating a copy part I for editing took {stopwatch.Elapsed}");
+        Console.WriteLine($"Removing alpha pixels from an image took {stopwatch.Elapsed}");
 
         stopwatch = Stopwatch.StartNew();
-        TempByteImageFormat temp = new TempByteImageFormat(returnValue, width, height, channelsPerPixel);
+        TempByteImageFormat temp = new TempByteImageFormat(onlyRGB, width, height, 3);
         stopwatch.Stop();
-        Console.WriteLine($"Creating a copy part II for editing took {stopwatch.Elapsed}");
+        Console.WriteLine($"Creating a temp image for editing took {stopwatch.Elapsed}");
 
         stopwatch = Stopwatch.StartNew();
         IDitherCommon<byte> ditherer = GetDitherer(ditheringSettings.ditheringMethod, GetColorReductionMethod(colorReductionSettings.colorReductionMethod));
@@ -329,29 +284,17 @@ else
         Console.WriteLine($"Dithering took {stopwatch.Elapsed}");
 
         dithererName = $"{ditherer.GetMethodName()} dithering";
-        
+
         stopwatch = Stopwatch.StartNew();
-        imageForDithering = Image.LoadPixelData<Rgb24>(temp.GetRawContent(), width, height);
-        stopwatch.Stop();
-        Console.WriteLine($"Copying dithered took {stopwatch.Elapsed}");
-
-        using (MemoryStream ms = new MemoryStream())
-        {
-            stopwatch = Stopwatch.StartNew();
-            await imageForDithering.SaveAsPngAsync(ms, pngEncoder);
-            stopwatch.Stop();
-            Console.WriteLine($"writing image to Png memorystream took {stopwatch.Elapsed}");
-
-            stopwatch = Stopwatch.StartNew();
-            ditheredImageAsBase64String = $"data:image/png;base64,{Convert.ToBase64String(ms.ToArray())}";
-            stopwatch.Stop();
-            Console.WriteLine($"writing string from Png memorystream took {stopwatch.Elapsed}");
-        }
-
         processing = false;
-    }
+        singleton.StateHasChanged();
+        await Task.Delay(TimeSpan.FromSeconds(0.01));
+        await JS.InvokeVoidAsync("writeRGBToCanvas", "outputCanvas", width, height, onlyRGB);
+        stopwatch.Stop();
+        Console.WriteLine($"writing image to canvas took {stopwatch.Elapsed}");
 
-    private static readonly string oneByOneWhitePixelBase64DataPng = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+        //processing = false;
+    }
 
     public enum DitheringMethod
 	{
@@ -396,10 +339,6 @@ else
     bool processing = false;
 
     private static bool imageIsLoaded = false;
-
-    private string defaultImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
-
-    private string ditheredImageAsBase64String { get; set; } = oneByOneWhitePixelBase64DataPng;
 
     private string dithererName { get; set; } = "Dithered image";
 }
