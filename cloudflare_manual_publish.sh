@@ -1,1 +1,0 @@
-npx wrangler pages publish wwwroot --project-name=dithery
