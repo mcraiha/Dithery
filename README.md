@@ -8,11 +8,11 @@ Dither showcase for Blazor. Uses [CSharp-Dithering](https://github.com/mcraiha/C
 
 ## Requirements (use)
 
-You have to have newish [internet browser](https://docs.microsoft.com/en-us/aspnet/core/blazor/supported-platforms?view=aspnetcore-10.0)
+You have to have newish [internet browser](https://docs.microsoft.com/en-us/aspnet/core/blazor/supported-platforms?view=aspnetcore-11.0)
 
 ## Requirements (develop)
 
-.NET 10 or newer
+.NET 11 or newer
 
 ## How to run / develop
 ```
@@ -28,4 +28,4 @@ dotnet publish -c Release
 ```
 (you have to have wasm-tools installed, you can install it with following command `dotnet workload install wasm-tools` )
   
-and content should be in **bin\Release\net10.0\publish\wwwroot** folder.
+and content should be in **bin\Release\net11.0\publish\wwwroot** folder.
